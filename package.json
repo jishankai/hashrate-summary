@@ -1,0 +1,19 @@
+{
+  "name": "hashrate-summary",
+  "version": "1.0.0",
+  "description": "Summarize QKC Official Miners' Hashrate",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jishankai/hashrate-summary.git"
+  },
+  "author": "Shankai Ji",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jishankai/hashrate-summary/issues"
+  },
+  "homepage": "https://github.com/jishankai/hashrate-summary#readme"
+}
