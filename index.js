@@ -17,6 +17,7 @@ sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 async function run() {
   let str = `Summarize Start: ${new Date(Date.now())}…………\n`;
+  console.log(str);
   const stats = await axios.get('https://mainnet.quarkchain.io/getFullStats');
   const rootHeight = stats.data.rootHeight;
   const rootLastBlockTime = stats.data.rootLastBlockTime;
@@ -32,8 +33,8 @@ async function run() {
     }
   }
   const date = new Date();
-  //俄勒冈时间21点执行
-  if(date.getHours()==21 && date.getMinutes()==0) {
+  //北京时间10:00~10:10间执行
+  if(date.getHours()==2 && date.getMinutes()<10) {
     let check0x32 = false;
     let check0x2b = false;
     let check0xfc = false;
@@ -47,13 +48,13 @@ async function run() {
       const root = res.data.result;
       if(root.miner.slice(0,4)=='0x32' && !check0x32) {
         check0x32 = true;
-        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0x32地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/10000/512*root.poswMinedBlocks/1000).toFixed(2)).slice(-10)}K`;
+        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0x32地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/10000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
       } else if(root.miner.slice(0,4)=='0xfc' && !check0xfc) {
         check0xfc = true;
-        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0xfc地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/10000/512*root.poswMinedBlocks/1000).toFixed(2)).slice(-10)}K`;
+        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0xfc地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/10000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
       } else if(root.miner.slice(0,4)=='0x2b' && !check0x2b) {
         check0x2b = true;
-        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0x2b地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/1000/512*root.poswMinedBlocks/1000).toFixed(2)).slice(-10)}K`;
+        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0x2b地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/1000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
       }
 
       if(check0x32 && check0xfc && check0x2b) {
@@ -71,7 +72,11 @@ async function run() {
       });
 
       const mined = shardx.data.result.primary.minedBlocks;
-      str = str + '\n' + `分片${k}高度${shard.height}, 当前难度${('00'+(shard.difficulty/10e8).toFixed(6)).slice(-10)}G, 0x7d地址出块数${('000'+Number(mined)).slice(-3)}/256, 出块比例${('000'+(mined*100/256).toFixed(2)).slice(-5)}%, 算力${('00000'+(shard.difficulty/10/20/256*mined/1000).toFixed(2)).slice(-10)}K`;
+      if(k<6) {
+        str = str + '\n' + `分片${k}高度${shard.height}, 当前难度${('00'+(shard.difficulty/10e8).toFixed(6)).slice(-10)}G, 0x7d地址出块数${('000'+Number(mined)).slice(-3)}/256, 出块比例${('000'+(mined*100/256).toFixed(2)).slice(-5)}%, 算力${('00000'+(shard.difficulty/10/20/256*mined/10e5).toFixed(2)).slice(-7)}M`;
+      } else {
+        str = str + '\n' + `分片${k}高度${shard.height}, 当前难度${('00'+(shard.difficulty/10e8).toFixed(6)).slice(-10)}G, 0x7d地址出块数${('000'+Number(mined)).slice(-3)}/256, 出块比例${('000'+(mined*100/256).toFixed(2)).slice(-5)}%, 算力${('00000'+(shard.difficulty/10/20/256*mined/1000).toFixed(2)).slice(-7)}K`;
+      }
     }
 
     str = str + '\n\n' + `…………Summarize Finished: ${new Date(Date.now())}`;
@@ -84,7 +89,9 @@ async function run() {
     };
 
     sendgrid.send(msg);
+    console.log(str);
   }
+  console.log('...Finished');
 }
 
 run();
