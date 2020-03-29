@@ -72,7 +72,9 @@ async function run() {
       });
 
       const mined = shardx.data.result.primary.minedBlocks;
-      if(k<6) {
+      if(k==0) {
+        str = str + '\n' + `分片${k}高度${shard.height}, 当前难度${('00'+(shard.difficulty/10e8).toFixed(6)).slice(-10)}G, 0x7d地址出块数${('000'+Number(mined)).slice(-3)}/256, 出块比例${('000'+(mined*100/256).toFixed(2)).slice(-5)}%, 算力${('00000'+(shard.difficulty/10/256*mined/10e5).toFixed(2)).slice(-7)}M`;
+      } else if(k<6) {
         str = str + '\n' + `分片${k}高度${shard.height}, 当前难度${('00'+(shard.difficulty/10e8).toFixed(6)).slice(-10)}G, 0x7d地址出块数${('000'+Number(mined)).slice(-3)}/256, 出块比例${('000'+(mined*100/256).toFixed(2)).slice(-5)}%, 算力${('00000'+(shard.difficulty/10/20/256*mined/10e5).toFixed(2)).slice(-7)}M`;
       } else {
         str = str + '\n' + `分片${k}高度${shard.height}, 当前难度${('00'+(shard.difficulty/10e8).toFixed(6)).slice(-10)}G, 0x7d地址出块数${('000'+Number(mined)).slice(-3)}/256, 出块比例${('000'+(mined*100/256).toFixed(2)).slice(-5)}%, 算力${('00000'+(shard.difficulty/10/20/256*mined/1000).toFixed(2)).slice(-7)}K`;
