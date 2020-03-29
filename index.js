@@ -6,12 +6,21 @@ module.exports = function(deployer) {
 const axios = require('axios');
 const sendgrid = require('@sendgrid/mail');
 require('dotenv').config();
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+ service: 'gmail',
+ auth: {
+   user: process.env.GMAIL_ADDRESS,
+   pass: process.env.GMAIL_PWD,
+ }
+});
 const AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
 AWS.config.update({
   accessKeyId: process.env.AWS_KEY,
   secretAccessKey: process.env.AWS_SECRET,
 });
+
 const sns = new AWS.SNS();
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -83,14 +92,18 @@ async function run() {
 
     str = str + '\n\n' + `…………Summarize Finished: ${new Date(Date.now())}`;
 
-    msg = {
-      to: process.env.QKC_EMAILLIST.split(','),
-      from: 'QuarkChainMining@quarkchain.org',
+    const mailOptions = {
+      from: 'QuarkChain Mining<mining@quarkchain.org>', // sender address
+      to: process.env.QKC_EMAILLIST,
       subject: `QKC Miners' Hashrate Summary ${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
-      text: str
+      html: str,
     };
-
-    sendgrid.send(msg);
+    transporter.sendMail(mailOptions, function (err, info) {
+      if(err)
+        console.log(err);
+      else
+        console.log(info);
+    });
     console.log(str);
   }
   console.log('...Finished');
