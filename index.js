@@ -86,7 +86,7 @@ async function run() {
     msg = {
       to: process.env.QKC_EMAILLIST.split(','),
       from: 'QuarkChainMining@quarkchain.org',
-      subject: `QKC Miners' Hashrate Summary ${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
+      subject: `QKC Miners' Hashrate Summary ${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
       text: str
     };
 
