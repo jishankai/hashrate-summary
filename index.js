@@ -7,8 +7,8 @@ const axios = require('axios');
 const sendgrid = require('@sendgrid/mail');
 require('dotenv').config();
 const AWS = require('aws-sdk');
-AWS.config.region = 'us-west-2';
 AWS.config.update({
+  region: 'us-west-2',
   accessKeyId: process.env.AWS_KEY,
   secretAccessKey: process.env.AWS_SECRET,
 });
@@ -24,12 +24,21 @@ async function run() {
   if(rootLastBlockTime>600) {
     const phones = process.env.QKC_PHONELIST.split(',');
     for(let phone of phones) {
-      await sns.publish({
-        Message: "根链算力异常[QuarkChain Mining]",
+      let params = {
+        Message:`根链算力异常, 高度${rootHeight}，出块间隔${rootLastBlockTime}秒[QuarkChain Mining]`,
         MessageStructure: 'string',
         PhoneNumber: phone,
         Subject: 'ALERT'
-      });
+      };
+      var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
+      publishTextPromise.then(
+        function(data) {
+          console.log("MessageID is " + data.MessageId);
+        }).catch(
+          function(err) {
+            console.error(err, err.stack);
+          }
+        );
     }
   }
   const date = new Date();
