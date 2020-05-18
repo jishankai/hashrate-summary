@@ -57,39 +57,38 @@ async function run() {
       const root = res.data.result;
       if(root.miner.slice(0,4)=='0x32' && !check0x32) {
         check0x32 = true;
-        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0x32地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/10000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
+        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0x32地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-6)}%, 算力${('00000'+(root.difficulty/60/10000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
       } else if(root.miner.slice(0,4)=='0xfc' && !check0xfc) {
-        if(root.poswMinedBlocks==0) {
-          const phones = process.env.QKC_PHONELIST.split(',');
-          for(let phone of phones) {
-            let params = {
-              Message:`根链算力异常, 0xfc长时间未出块[QuarkChain Mining]`,
-              MessageStructure: 'string',
-              PhoneNumber: phone,
-              Subject: 'ALERT'
-            };
-            publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
-            publishTextPromise.then(
-              function(data) {
-                console.log("MessageID is " + data.MessageId);
-              }).catch(
-                function(err) {
-                  console.error(err, err.stack);
-                }
-              );
-          }
-        }
-
         check0xfc = true;
-        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0xfc地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/10000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
+        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0xfc地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-6)}%, 算力${('00000'+(root.difficulty/60/10000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
       } else if(root.miner.slice(0,4)=='0x2b' && !check0x2b) {
         check0x2b = true;
-        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0x2b地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-5)}%, 算力${('00000'+(root.difficulty/60/1000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
+        str = str + '\n' + `根链高度${Number(root.height)}, 当前难度${('00'+(root.difficulty/10e11).toFixed(7)).slice(-12)}T, 0x2b地址出块数${('000'+Number(root.poswMinedBlocks)).slice(-3)}/512, 出块比例${('000'+(root.poswMinedBlocks*100/512).toFixed(2)).slice(-6)}%, 算力${('00000'+(root.difficulty/60/1000/512*root.poswMinedBlocks/10e5).toFixed(2)).slice(-7)}M`;
       }
 
       if(check0x32 && check0xfc && check0x2b) {
         str += '\n';
         break;
+      }
+    }
+    if(!check0xfc) {
+      const phones = process.env.QKC_PHONELIST.split(',');
+      for(let phone of phones) {
+        let params = {
+          Message:`根链算力异常, 0xfc长时间未出块[QuarkChain Mining]`,
+          MessageStructure: 'string',
+          PhoneNumber: phone,
+          Subject: 'ALERT'
+        };
+        publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
+        publishTextPromise.then(
+          function(data) {
+            console.log("MessageID is " + data.MessageId);
+          }).catch(
+            function(err) {
+              console.error(err, err.stack);
+            }
+          );
       }
     }
     for(let k in stats.data.shards) {
