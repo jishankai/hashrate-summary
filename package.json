@@ -19,7 +19,7 @@
   "dependencies": {
     "@sendgrid/mail": "^6.5.5",
     "aws-sdk": "^2.644.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "dotenv": "^8.2.0",
     "yuntongxun-sdk": "^1.5.0"
   }
