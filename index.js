@@ -5,6 +5,15 @@ module.exports = function(deployer) {
 */
 const axios = require('axios');
 const sendgrid = require('@sendgrid/mail');
+const Yuntongxun = require('yuntongxun-sdk');
+const yuntongxun = new Yuntongxun({
+  urlPrefix: 'https://app.cloopen.com:8883',
+  version: '2013-12-26',
+  accountSid: '8aaf0708559f32dd0155a5edcef40759',
+  authToken: '2ca3bf2ecee4445d930dfb3d8dcc3324',
+  appId: '8aaf0708559f32dd0155a6376c6907d0'
+});
+
 require('dotenv').config();
 const AWS = require('aws-sdk');
 AWS.config.update({
@@ -25,21 +34,26 @@ async function run() {
   if(rootLastBlockTime>600) {
     const phones = process.env.QKC_PHONELIST.split(',');
     for(let phone of phones) {
-      let params = {
-        Message:`根链算力异常, 高度${rootHeight}，上次出块${rootLastBlockTime}秒前[QuarkChain Mining]`,
-        MessageStructure: 'string',
-        PhoneNumber: phone,
-        Subject: 'ALERT'
-      };
-      var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
-      publishTextPromise.then(
-        function(data) {
-          console.log("MessageID is " + data.MessageId);
-        }).catch(
-          function(err) {
-            console.error(err, err.stack);
-          }
-        );
+      yuntongxun.templateSms(phone, '1', [`*算力异常，高度${rootHeight}*`,`**上次出块${rootLastBlockTime}秒前**`]).then((callSid) => {
+        console.log(callSid);
+      }, (err) => {
+        console.error(err);
+      });
+    //   let params = {
+    //     Message:`根链算力异常, 高度${rootHeight}，上次出块${rootLastBlockTime}秒前[QuarkChain Mining]`,
+    //     MessageStructure: 'string',
+    //     PhoneNumber: phone,
+    //     Subject: 'ALERT'
+    //   };
+    //   var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
+    //   publishTextPromise.then(
+    //     function(data) {
+    //       console.log("MessageID is " + data.MessageId);
+    //     }).catch(
+    //       function(err) {
+    //         console.error(err, err.stack);
+    //       }
+    //     );
     }
   }
   const date = new Date();
