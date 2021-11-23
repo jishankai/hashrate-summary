@@ -20,12 +20,13 @@ async function run() {
   console.log(str);
   const stats = await axios.get('https://mainnet.quarkchain.io/getFullStats');
   const rootHeight = stats.data.rootHeight;
-  const rootLastBlockTime = stats.data.rootLastBlockTime;
+  const rootTimestamp = stats.data.rootTimestamp;
+  const rootLastBlockTime = parseInt(Date.now()/1000) - rootTimestamp;
   if(rootLastBlockTime>600) {
     const phones = process.env.QKC_PHONELIST.split(',');
     for(let phone of phones) {
       let params = {
-        Message:`根链算力异常, 高度${rootHeight}，出块间隔${rootLastBlockTime}秒[QuarkChain Mining]`,
+        Message:`根链算力异常, 高度${rootHeight}，上次出块${rootLastBlockTime}秒前[QuarkChain Mining]`,
         MessageStructure: 'string',
         PhoneNumber: phone,
         Subject: 'ALERT'
@@ -71,6 +72,7 @@ async function run() {
         break;
       }
     }
+    /*
     if(!check0xfc) {
       const phones = process.env.QKC_PHONELIST.split(',');
       for(let phone of phones) {
@@ -91,6 +93,7 @@ async function run() {
           );
       }
     }
+    */
     for(let k in stats.data.shards) {
       const shard = stats.data.shards[k];
       const shardx = await axios.post('http://jrpc.mainnet.quarkchain.io:38391',{
