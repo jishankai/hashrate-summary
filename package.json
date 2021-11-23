@@ -18,7 +18,7 @@
   "homepage": "https://github.com/jishankai/hashrate-summary#readme",
   "dependencies": {
     "@sendgrid/mail": "^6.5.5",
-    "aws-sdk": "^2.644.0",
+    "aws-sdk": "^2.814.0",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "yuntongxun-sdk": "^1.5.0"
